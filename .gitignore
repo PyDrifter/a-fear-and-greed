@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Local cache (generated at runtime)
+cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PyPI / build
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Logs
+*.log
+
+# Temporary test scripts
+_test_*.py
+_test_*.ps1
+_verify_*.py
+_decode_*.py
+_read_*.py
