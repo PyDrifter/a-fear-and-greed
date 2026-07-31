@@ -14,7 +14,7 @@ A股个股/ETF 贪恐指数计算工具
 """
 import pickle
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, time
 from pathlib import Path
 
 import akshare as ak
@@ -93,6 +93,7 @@ RAW_CACHE_DIR.mkdir(exist_ok=True)
 # A股收盘时间: 北京时间 09:30
 _MARKET_OPEN_HOUR = 9
 _MARKET_OPEN_MINUTE = 30
+_MARKET_OPEN_TIME = time(_MARKET_OPEN_HOUR, _MARKET_OPEN_MINUTE)
 _BEIJING_TZ = timezone(timedelta(hours=8))
 
 
@@ -108,7 +109,7 @@ def _market_cache_date() -> str:
     if weekday >= 5:
         # 周末 → 回退到上一个工作日 (周五)
         return (now - timedelta(days=weekday - 4)).strftime("%Y%m%d")
-    if now.hour >= _MARKET_OPEN_HOUR and now.minute >= _MARKET_OPEN_MINUTE:
+    if now.time() >= _MARKET_OPEN_TIME:
         return now.strftime("%Y%m%d")
     return (now - timedelta(days=1)).strftime("%Y%m%d")
 
@@ -119,6 +120,7 @@ def _raw_cache_path(code: str) -> Path:
 
 def _raw_cache_key(code: str) -> str:
     """按市场收盘感知日期 + code 生成缓存校验 key"""
+    print(f"{code}_{_market_cache_date()}")
     return f"{code}_{_market_cache_date()}"
 
 
