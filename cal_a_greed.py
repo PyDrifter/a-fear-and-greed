@@ -90,16 +90,17 @@ NORM_WINDOW = 252
 RAW_CACHE_DIR = Path(__file__).parent / "cache"
 RAW_CACHE_DIR.mkdir(exist_ok=True)
 
-# A股收盘时间: 北京时间 15:00
-_MARKET_CLOSE_HOUR = 15
+# A股收盘时间: 北京时间 09:30
+_MARKET_OPEN_HOUR = 9
+_MARKET_OPEN_MINUTE = 30
 _BEIJING_TZ = timezone(timedelta(hours=8))
 
 
 def _market_cache_date() -> str:
     """按 A 股收盘时间决定缓存日期 (北京时间)
 
-    - 交易日收盘前 (< 15:00): 用昨天
-    - 交易日收盘后 (>= 15:00): 用今天
+    - 交易日开盘前 (< 09:30): 用昨天
+    - 交易日开盘后 (>= 09:30): 用今天
     - 周末: 用上一个工作日 (周五)
     """
     now = datetime.now(_BEIJING_TZ)
@@ -107,7 +108,7 @@ def _market_cache_date() -> str:
     if weekday >= 5:
         # 周末 → 回退到上一个工作日 (周五)
         return (now - timedelta(days=weekday - 4)).strftime("%Y%m%d")
-    if now.hour >= _MARKET_CLOSE_HOUR:
+    if now.hour >= _MARKET_OPEN_HOUR and now.minute >= _MARKET_OPEN_MINUTE:
         return now.strftime("%Y%m%d")
     return (now - timedelta(days=1)).strftime("%Y%m%d")
 
