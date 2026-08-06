@@ -115,6 +115,49 @@ python web_app.py
 2. 页面展示最新贪恐指数、6 项子指标卡片、近 1 年双轴图表；
 3. 非预置代码搜索成功后，会自动追加到对应标签区（个股 / ETF），刷新不丢失。
 
+### 3. MA5 偏离度预警 — `ma_warn.py` + GitHub Actions
+
+`ma_warn.py` 定期检查若干标的（个股 / ETF）最新收盘价相对 **5 日均线 (MA5)** 的偏离度，
+若偏离超过设定阈值，则通过**企业微信群机器人**推送预警消息。数据源为腾讯财经直连。
+
+> 仅依赖 `requests`，便于在轻量 CI / 定时任务中运行。
+
+#### 配置
+
+配置来源优先级：**真实环境变量 > 项目根目录 `.env` > `config.ini`**。
+
+- `.env`（本地运行推荐，复制 `.env.example`）：
+
+```ini
+WECHAT_WEBHOOK=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=your_key_here
+STOCK_LIST={"159552": 4, "588000": 4.5}
+```
+
+  - `WECHAT_WEBHOOK` — 企业微信群机器人 Webhook 完整地址（含 key）。
+  - `STOCK_LIST` — JSON 字典，`{"标的代码": 预警阈值%}`。偏离度取绝对值判断：最新价高于 **或** 低于 MA5 超阈值都会预警。
+
+
+#### 本地运行
+
+```bash
+copy .env.example .env        # Windows；先填写真实 key 与 STOCK_LIST
+python -X utf8 ma_warn.py     # 建议用 -X utf8 避免 Windows GBK 中文乱码
+```
+
+#### 通过 GitHub Actions 定时运行
+
+- **定时**：工作日 15:30（北京时间 = 07:30 UTC）运行。
+- **手动**：Actions 页面 → `MA5 偏离预警` → `Run workflow`。
+
+配置仓库 Secrets（Settings → Secrets and variables → Actions）：
+
+| Secret | 说明 | 示例值 |
+|:--|:--|:--|
+| `WECHAT_WEBHOOK` | 企业微信机器人完整 URL | `https://qyapi.weixin.qq.com/...?key=xxx` |
+| `STOCK_LIST` | 标的与阈值 JSON | `{"159552": 4, "588000": 4.5}` |
+
+> 未配置 secret 时 run 会失败（脚本读取不到 Webhook），请务必先配置再使用定时任务。
+
 ---
 
 ## 🗂️ 项目结构
@@ -123,6 +166,11 @@ python web_app.py
 a-fear-and-greed/
 ├── cal_a_greed.py          # 核心计算类 A_FearGreed + 命令行入口
 ├── web_app.py              # Flask Web 服务 + API 路由
+├── ma_warn.py              # MA5 偏离度预警 (企业微信推送)
+├── .env.example            # ma_warn 本地运行环境变量模板
+├── .github/
+│   └── workflows/
+│       └── ma_warn.yml     # MA5 预警定时任务 (工作日 15:30 北京)
 ├── templates/
 │   └── index.html          # 前端页面 (ECharts + localStorage)
 ├── cache/                  # 本地缓存目录 (自动生成, 可删除重建)
