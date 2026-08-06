@@ -32,6 +32,9 @@ dist/
 # Logs
 *.log
 
+# Local env (contains webhook secret)
+.env
+
 # Temporary test scripts
 _test_*.py
 _test_*.ps1

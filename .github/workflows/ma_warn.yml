@@ -1,0 +1,26 @@
+name: MA5 偏离预警
+
+on:
+  schedule:
+    # A股 15:30 (北京时间 = 07:30 UTC), 仅工作日
+    - cron: "30 7 * * 1-5"
+  workflow_dispatch: # 支持手动触发测试
+
+jobs:
+  warn:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 安装依赖
+        run: pip install requests
+
+      - name: 运行 MA5 偏离度检查
+        env:
+          WECHAT_WEBHOOK: ${{ secrets.WECHAT_WEBHOOK }}
+          STOCK_LIST: ${{ secrets.STOCK_LIST }}
+        run: python ma_warn.py
