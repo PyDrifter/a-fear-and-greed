@@ -17,7 +17,7 @@ jobs:
           python-version: "3.11"
 
       - name: 安装依赖
-        run: pip install requirements.txt
+        run: pip install -r requirements.txt
 
       - name: 运行 MA5 偏离度检查
         env:
