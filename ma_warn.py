@@ -291,8 +291,8 @@ def main() -> None:
             if abs(deviation) >= threshold:
                 side = "高于" if deviation > 0 else "低于"
                 over_threshold.append(
-                    f"{name}({code}): 最新价 {close:.3f} {side} 5日线 {ma5:.3f}"
-                    f"，偏离 {abs(deviation):.2f}%，已触发 {threshold:.2f}% 预警"
+                    f"{name}({code}): 最新价 {close:.3f} 偏离5日线 {deviation:.2f}%"
+                    f"，已触发 {threshold:.2f}% 预警"
                 )
         except Exception as e:
             print(f"✗ 获取失败 [{code}]: {e}", file=sys.stderr)
