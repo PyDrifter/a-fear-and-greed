@@ -21,8 +21,8 @@ MA5 偏离度预警脚本
   3. 计算最新收盘价相对 MA5 的偏离度 (百分比)
   4. 若 |偏离度| >= 配置阈值 → 发送企业微信预警消息
 
-标的名称解析 (参考 web_app.py / cal_a_greed.py):
-  内存 NAME_MAP → cache/name_{code}.pkl → cache/all_etf_names.pkl /
+标的名称解析 (参考 web_app.py):
+  内置 NAME_MAP → cache/name_{code}.pkl → cache/all_etf_names.pkl /
   cache/all_stock_names.pkl → 兜底直接用代码。
 """
 import json
@@ -40,9 +40,42 @@ if hasattr(sys.stderr, "reconfigure"):
 
 import requests
 
-from cal_a_greed import NAME_MAP as CAL_NAME_MAP  # 复用 cal_a_greed.py 的代码→名称映射
-
 # ─────────────────────────── 配置 ───────────────────────────
+# 内置常用代码 → 名称映射 (来源: cal_a_greed.py NAME_MAP)
+# 仅在本地无 cache 缓存时兜底使用, 缺失的代码直接用代码本身显示
+NAME_MAP: dict[str, str] = {
+    "000001": "平安银行",
+    "000002": "万科A",
+    "000333": "美的集团",
+    "000651": "格力电器",
+    "000858": "五粮液",
+    "002415": "海康威视",
+    "002475": "立讯精密",
+    "300059": "东方财富",
+    "300750": "宁德时代",
+    "600036": "招商银行",
+    "600276": "恒瑞医药",
+    "600519": "贵州茅台",
+    "600690": "海尔智家",
+    "600887": "伊利股份",
+    "600900": "长江电力",
+    "601012": "隆基绿能",
+    "601166": "兴业银行",
+    "601318": "中国平安",
+    "601398": "工商银行",
+    "601899": "紫金矿业",
+    "510050": "上证50ETF",
+    "510300": "沪深300ETF",
+    "510500": "中证500ETF",
+    "510880": "红利ETF",
+    "512100": "中证1000ETF",
+    "512880": "证券ETF",
+    "513050": "中概互联ETF",
+    "515790": "光伏ETF",
+    "518880": "黄金ETF",
+    "159915": "创业板ETF",
+}
+
 CONFIG_FILE = Path(__file__).parent / "config.ini"
 ENV_FILE = Path(__file__).parent / ".env"
 CACHE_DIR = Path(__file__).parent / "cache"
@@ -155,9 +188,9 @@ def _load_all_names_pkl() -> None:
 
 
 def resolve_name(code: str) -> str:
-    """解析标的名称: 预置映射 → 单只缓存 → 全量名称表缓存 → 直接用代码"""
-    if code in CAL_NAME_MAP:
-        return CAL_NAME_MAP[code]
+    """解析标的名称: 内置映射 → 单只缓存 → 全量名称表缓存 → 直接用代码"""
+    if code in NAME_MAP:
+        return NAME_MAP[code]
 
     if code in _NAME_CACHE:
         return _NAME_CACHE[code]
