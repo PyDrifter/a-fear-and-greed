@@ -118,8 +118,6 @@ def _read_config() -> tuple[str, dict[str, float]]:
     """
     # ── Webhook URL ──
     url = os.environ.get("WECHAT_WEBHOOK", "").strip()
-    # ── Webhook URL ──
-    url = os.environ.get("WECHAT_WEBHOOK", "").strip()
     if not url:
         import configparser
 

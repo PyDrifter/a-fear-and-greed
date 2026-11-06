@@ -1,0 +1,27 @@
+name: 美股大盘止跌判断
+
+on:
+  schedule:
+    # 美股 16:00 美东收盘后 22:30 UTC（= 北京时间次日 06:30），周一至周五各跑一次
+    - cron: "25 21 * * 1-5"
+  workflow_dispatch: # 支持手动触发测试
+
+jobs:
+  judge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 安装依赖
+        run: pip install pandas numpy tiingo fredapi serverchan_sdk
+
+      - name: 运行大盘止跌判断并推送日报
+        env:
+          TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          SERVER_CHAN_KEY: ${{ secrets.SERVER_CHAN_KEY }}
+        run: python bottom_judgement.py
